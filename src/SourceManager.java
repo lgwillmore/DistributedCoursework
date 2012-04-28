@@ -1,3 +1,4 @@
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -16,13 +17,26 @@ public class SourceManager extends UnicastRemoteObject implements SourceManagerR
 	}
 	
 	public void startServing(){
+		System.out.println("SourceManager started");
 		serveThread=new Thread(new SourceServeEngine());
 		serveThread.start();
 	}
 	
 	
 	public void addSource(String path){
-		if(!activeSources.containsKey(path))activeSources.put(path, new NotificationSource(path));
+		if(!activeSources.containsKey(path)){
+			try {
+				NotificationSource ns = new NotificationSource(path);
+				Naming.rebind(path, ns);
+				activeSources.put(path, ns);
+				System.out.println("Source manager added Source to:"+path);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			
+			
+		}		
 	}
 	
 	public void removeSource(String path){
@@ -34,9 +48,17 @@ public class SourceManager extends UnicastRemoteObject implements SourceManagerR
 
 
 	@Override
-	public ArrayList<NotificationSource> getSourceList() throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+	public ArrayList<String> getSourcePathList() throws RemoteException {
+		ArrayList<String> list = new ArrayList<String>();
+		for (String path : activeSources.keySet()) {
+			list.add(Util.getRemoteNameOf(path));		
+		}
+		return list;
+	}
+	
+	@Override
+	public NotificationSource getSource(String path)throws RemoteException{
+		return activeSources.get(path);
 	}
 	
 	private class SourceServeEngine implements Runnable{

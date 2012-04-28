@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 public interface SourceManagerRemoteInterface extends Remote{
 	
-	public ArrayList<NotificationSource> getSourceList() throws RemoteException;
+	public ArrayList<String> getSourcePathList() throws RemoteException;
+	public NotificationSource getSource(String path)throws RemoteException;
 
 }

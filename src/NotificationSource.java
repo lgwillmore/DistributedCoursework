@@ -1,14 +1,19 @@
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
 
-public class NotificationSource implements NotificationSourceRemoteInterface{
+public class NotificationSource extends UnicastRemoteObject implements NotificationSourceRemoteInterface{
 	
 	String path;
-	ArrayList<NotificationSink> subscribers;
+	ArrayList<NotificationSinkRemoteInterface> subscribers;
 
-	public NotificationSource(String path) {
+	protected NotificationSource(String path) throws RemoteException{
 		this.path=path;
+		subscribers=new ArrayList<NotificationSinkRemoteInterface>();
 	}	
 
 	public void notifyRemoval() {
@@ -17,8 +22,9 @@ public class NotificationSource implements NotificationSourceRemoteInterface{
 	}
 	
 	public void doChecks(){
-		for (NotificationSink sink : subscribers) {
+		for (NotificationSinkRemoteInterface sink : subscribers) {
 			try {
+				System.out.println("Passing notification");
 				sink.passNotification(new Notification("Hello"));
 			} catch (RemoteException e) {
 				e.printStackTrace();
@@ -28,10 +34,17 @@ public class NotificationSource implements NotificationSourceRemoteInterface{
 	
 
 	@Override
-	public boolean registerSubscriber(NotificationSink newSink)
-			throws RemoteException {
-		if(subscribers.add(newSink))return true;
-		return false;
+	public void registerSubscriber(String remoteName)	throws RemoteException {
+		try {
+			NotificationSinkRemoteInterface newSink=(NotificationSinkRemoteInterface)Naming.lookup(remoteName);
+			if(!subscribers.contains(newSink))subscribers.add(newSink);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
