@@ -1,12 +1,12 @@
 import java.io.Serializable;
-
+import java.util.ArrayList;
 
 public class Notification implements Serializable{
-	private String message;
-	public Notification(String message){
-		this.message=message;
+	private ArrayList<String> messages;
+	public Notification(ArrayList<String> messages){
+		this.messages=messages;
 	}
-	public String getMessage(){
-		return message;
+	public ArrayList<String> getMessage(){
+		return messages;
 	}
 }

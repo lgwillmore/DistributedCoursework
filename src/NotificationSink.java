@@ -8,10 +8,12 @@ public class NotificationSink extends UnicastRemoteObject implements Notificatio
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
+	
 	@Override
 	public void passNotification(Notification messanger) throws RemoteException {
-		System.out.println(messanger.getMessage());
+		for (String message : messanger.getMessage()) {
+			System.out.println(message);
+		}
 	}
 
 }

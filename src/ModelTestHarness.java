@@ -46,7 +46,7 @@ public class ModelTestHarness {
 		mySinkM.connectToSource(address);
 		
 		//add a source to the source manager
-		mySourceM.addSource("Test"+File.separator+"test1");	
+		mySourceM.addSource("Test");	
 		
 		String remoteSourcePath = mySinkM.getSourcePathList().get(0);
 		
