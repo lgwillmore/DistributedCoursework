@@ -32,6 +32,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
 import javax.swing.JTextArea;
@@ -40,7 +42,8 @@ import javax.swing.JTextField;
 
 
 public class ApplicationWindow extends JFrame implements ActionListener {
-	private boolean local = true;
+	private boolean local = false;
+	private static int PORT = 0;
 	private SourceManager myServer;
 	private NotificationSink myClient;
 	private JPanel contentPane;
@@ -60,6 +63,9 @@ public class ApplicationWindow extends JFrame implements ActionListener {
 	 */
 	public static void main(String[] args) {
 		// start RMI
+		if (System.getSecurityManager()==null){
+			System.setSecurityManager(new SecurityManager());
+		}
 		try {
 			java.rmi.registry.LocateRegistry.createRegistry(1099);
 			System.out.println("RMI registry ready.");
@@ -102,7 +108,8 @@ public class ApplicationWindow extends JFrame implements ActionListener {
 		myServer = null;
 		try {
 			myServer = new SourceManager();
-			Naming.rebind("SourceManager", myServer);
+			SourceManager serverStub=(SourceManager)UnicastRemoteObject.exportObject(myServer,PORT);
+			LocateRegistry.getRegistry().rebind("SourceManager", serverStub);
 			System.out.println("SourceManager ready");
 		} catch (Exception e) {
 			e.printStackTrace();
