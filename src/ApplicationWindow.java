@@ -42,8 +42,8 @@ import javax.swing.JTextField;
 
 
 public class ApplicationWindow extends JFrame implements ActionListener {
-	private boolean local = false;
-	private static int PORT = 0;
+	private boolean local = true;
+	public static int PORT = 0;
 	private SourceManager myServer;
 	private NotificationSink myClient;
 	private JPanel contentPane;
@@ -109,7 +109,7 @@ public class ApplicationWindow extends JFrame implements ActionListener {
 		try {
 			myServer = new SourceManager();
 			SourceManager serverStub=(SourceManager)UnicastRemoteObject.exportObject(myServer,PORT);
-			LocateRegistry.getRegistry().rebind("SourceManager", serverStub);
+			LocateRegistry.getRegistry().rebind(SourceManager.REGISTRY_NAME, serverStub);
 			System.out.println("SourceManager ready");
 		} catch (Exception e) {
 			e.printStackTrace();

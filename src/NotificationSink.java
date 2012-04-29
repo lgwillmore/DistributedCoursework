@@ -24,11 +24,9 @@ public class NotificationSink extends UnicastRemoteObject implements Notificatio
 		super();
 		subscriptions=new HashMap<String, NotificationSourceRemoteInterface>();
 		try{
-			Naming.rebind("NotificationSink", this);
+			NotificationSink sinkStub = (NotificationSink)UnicastRemoteObject.exportObject(this,ApplicationWindow.PORT);
+			LocateRegistry.getRegistry().rebind(NotificationSink.REGISTRY_NAME, sinkStub);			
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
