@@ -5,12 +5,13 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Util {
 	public static String RMI_PRE = "rmi://";
-	
-	public static String getExternalIP(){
+
+	public static String getExternalIP() {
 		URL whatismyip;
 		try {
 			whatismyip = new URL(
@@ -29,8 +30,8 @@ public class Util {
 		}
 		return null;
 	}
-	
-	public static String getlocalIP(){
+
+	public static String getlocalIP() {
 		try {
 			return InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {
@@ -39,9 +40,9 @@ public class Util {
 		}
 		return null;
 	}
-	
-	public static String getRemoteNameOf(String name){
-		return RMI_PRE+getlocalIP()+"/"+name;
+
+	public static String getRemoteNameOf(String name) {
+		return RMI_PRE + getlocalIP() + "/" + name;
 	}
 
 }

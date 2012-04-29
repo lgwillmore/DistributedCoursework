@@ -5,16 +5,17 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class NotificationSource extends UnicastRemoteObject implements
 		NotificationSourceRemoteInterface {
-	FileMonitor myFM;
-	String path;
-	ArrayList<NotificationSinkRemoteInterface> subscribers;
+	private FileMonitor myFM;
+	private String Registry_Name;
+	private HashMap<String,NotificationSinkRemoteInterface> subscribers;
 
 	protected NotificationSource(String path) throws RemoteException {
-		this.path = path;
-		subscribers = new ArrayList<NotificationSinkRemoteInterface>();
+		this.Registry_Name = path;
+		subscribers = new HashMap<String,NotificationSinkRemoteInterface>();
 		try {
 			myFM = new FileMonitor(path);
 		} catch (IOException e) {
@@ -29,10 +30,10 @@ public class NotificationSource extends UnicastRemoteObject implements
 	public void doChecks() {
 		ArrayList<String> messages = myFM.check();
 		if (messages != null) {
-			for (NotificationSinkRemoteInterface sink : subscribers) {
+			for (String sink : subscribers.keySet()) {
 				try {
 					System.out.println("Passing notification");
-					sink.passNotification(new Notification(messages));
+					subscribers.get(sink).passNotification(new Notification(messages));
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
@@ -45,8 +46,8 @@ public class NotificationSource extends UnicastRemoteObject implements
 		try {
 			NotificationSinkRemoteInterface newSink = (NotificationSinkRemoteInterface) Naming
 					.lookup(remoteName);
-			if (!subscribers.contains(newSink))
-				subscribers.add(newSink);
+			if (!subscribers.containsKey(remoteName))
+				subscribers.put(remoteName, newSink);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -54,6 +55,11 @@ public class NotificationSource extends UnicastRemoteObject implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void deregisterSubscriber(String remoteName) throws RemoteException {
+		if(subscribers.containsKey(remoteName))subscribers.remove(remoteName);
 	}
 
 }

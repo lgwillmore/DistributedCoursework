@@ -8,8 +8,10 @@ import java.util.Iterator;
 
 public class SourceManager extends UnicastRemoteObject implements SourceManagerRemoteInterface{
 	
+	public static final String REGISTRY_NAME = "SourceManager"; 
 	private HashMap<String,NotificationSource> activeSources;
 	private Thread serveThread;
+	private ApplicationWindow view;
 	
 	protected SourceManager() throws RemoteException {
 		super();
@@ -89,6 +91,18 @@ public class SourceManager extends UnicastRemoteObject implements SourceManagerR
 			}
 		}
 		
+	}
+
+	public ArrayList<String> getSourcePathListLocal() {
+		ArrayList<String> list = new ArrayList<String>();
+		for (String path : activeSources.keySet()) {
+			list.add(path);		
+		}
+		return list;
+	}
+
+	public void setView(ApplicationWindow view) {
+		this.view=view;
 	}
 
 }

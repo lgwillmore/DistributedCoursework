@@ -37,20 +37,25 @@ public class ModelTestHarness {
 		mySourceM.startServing();		
 		
 		// Build Sink Client Side
-		SinkManager mySinkM = new SinkManager();
+		NotificationSink SinkClient=null;
+		try {
+			SinkClient = new NotificationSink();
+		} catch (Exception e) {			
+			e.printStackTrace();
+		}
 		
 		// Connect Client to Server
 		String address=null;
 		if(useLocal)address=Util.getlocalIP();
 		else address = Util.getExternalIP();
-		mySinkM.connectToSource(address);
+		SinkClient.connectToHost(address);
 		
 		//add a source to the source manager
 		mySourceM.addSource("Test");	
 		
-		String remoteSourcePath = mySinkM.getSourcePathList().get(0);
+		String remoteSourcePath = SinkClient.getAvailableSourceList().get(0);
 		
-		mySinkM.registerWith(remoteSourcePath);
+		SinkClient.registerWith(remoteSourcePath);
 		
 	}	
 
