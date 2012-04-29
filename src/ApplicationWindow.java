@@ -1,43 +1,30 @@
-import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
-
-import javax.imageio.ImageIO;
-import javax.swing.DefaultListModel;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JTabbedPane;
-import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
-import java.awt.Dimension;
-import javax.swing.JScrollPane;
-import javax.swing.JLabel;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
-import java.awt.Label;
-import java.awt.TextField;
-import java.awt.Font;
-import javax.swing.JList;
-import javax.swing.JButton;
-import java.awt.TextArea;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.server.UnicastRemoteObject;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 
 
@@ -61,19 +48,7 @@ public class ApplicationWindow extends JFrame implements ActionListener {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		// start RMI
-		if (System.getSecurityManager()==null){
-			System.setSecurityManager(new SecurityManager());
-		}
-		try {
-			java.rmi.registry.LocateRegistry.createRegistry(1099);
-			System.out.println("RMI registry ready.");
-		} catch (java.rmi.server.ExportException e) {
-			System.out.println("Registry is already started");
-		} catch (Exception e) {
-			System.out.println("Exception starting RMI registry:");
-		}
+	public static void main(String[] args) {		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -92,26 +67,50 @@ public class ApplicationWindow extends JFrame implements ActionListener {
 	public ApplicationWindow() {
 		super();
 		ipvalidator = new IPAddressValidator();
-		try {
-			myClient = new NotificationSink();
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+		startClient();
 		startServer();
 		myClient.setView(this);
 		myServer.setView(this);
 		init();
 	}
+	
+	private void startClient() {
+		try {
+			myClient = new NotificationSink();
+		} catch (RemoteException e) {
+			System.out.println("Could not make the client");
+			e.printStackTrace();
+		}
+		try{
+			Naming.rebind(NotificationSink.REGISTRY_NAME, myClient);
+		} catch (RemoteException e) {
+			System.out.println("Could not bind the client");
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			System.out.println("Could not bind the client");
+			e.printStackTrace();
+		}
+	}
+	
+	
 
 	private void startServer() {
 		// Build Server Side
 		myServer = null;
+		
 		try {
 			myServer = new SourceManager();
-			SourceManager serverStub=(SourceManager)UnicastRemoteObject.exportObject(myServer,PORT);
-			LocateRegistry.getRegistry().rebind(SourceManager.REGISTRY_NAME, serverStub);
-			System.out.println("SourceManager ready");
-		} catch (Exception e) {
+		} catch (RemoteException e) {
+			System.out.println("Could make the server");
+			e.printStackTrace();
+		}			
+		try{
+			Naming.rebind(SourceManager.REGISTRY_NAME, myServer);
+		} catch (RemoteException e) {
+			System.out.println("Could not bind the server");
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			System.out.println("Could not bind the server");
 			e.printStackTrace();
 		}
 		// Start Serving

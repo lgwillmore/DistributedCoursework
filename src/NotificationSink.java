@@ -1,5 +1,3 @@
-import java.io.File;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -22,14 +20,7 @@ public class NotificationSink extends UnicastRemoteObject implements Notificatio
 
 	protected  NotificationSink()throws RemoteException{
 		super();
-		subscriptions=new HashMap<String, NotificationSourceRemoteInterface>();
-		try{
-			NotificationSink sinkStub = (NotificationSink)UnicastRemoteObject.exportObject(this,ApplicationWindow.PORT);
-			LocateRegistry.getRegistry().rebind(NotificationSink.REGISTRY_NAME, sinkStub);			
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		subscriptions=new HashMap<String, NotificationSourceRemoteInterface>();		
 	}
 
 	public void connectToHost(String host) {
@@ -38,9 +29,7 @@ public class NotificationSink extends UnicastRemoteObject implements Notificatio
 			ServerRegistry = LocateRegistry.getRegistry(host);
 		} catch (RemoteException e1) {			
 			e1.printStackTrace();
-		}
-		//String remoteAddress = Util.RMI_PRE+host+"/"+SourceManager.REGISTRY_NAME;
-		//System.out.println(remoteAddress);
+		}		
 		try {
 			currentHost = (SourceManagerRemoteInterface)ServerRegistry.lookup(SourceManager.REGISTRY_NAME);
 			System.out.println("SourceManager found");
