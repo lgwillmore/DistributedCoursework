@@ -27,6 +27,7 @@ import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.Naming;
@@ -265,6 +266,8 @@ public class ApplicationWindow extends JFrame implements ActionListener {
 			remoteName=subscribedList.getSelectedValue().toString();
 			myClient.deregisterWith(remoteName);
 			populateSubscriptions();
+			inboxTextArea.append("REMOVED SUBSCRIPTION to: "+remoteName+"\n");
+			
 		}	
 	}
 
@@ -272,8 +275,11 @@ public class ApplicationWindow extends JFrame implements ActionListener {
 		String remoteName;
 		if(!availableList.isSelectionEmpty()){
 			remoteName=availableList.getSelectedValue().toString();
-			myClient.registerWith(remoteName);
-			populateSubscriptions();
+			if(!myClient.getSubscriptionList().contains(remoteName)){
+				myClient.registerWith(remoteName);
+				populateSubscriptions();
+				inboxTextArea.append("SUBSCRIBED to: "+remoteName+"\n");
+			}
 		}		
 	}
 
@@ -316,11 +322,11 @@ public class ApplicationWindow extends JFrame implements ActionListener {
 		}
 	}
 	
-	private void populateSubscriptions(){
+	public void populateSubscriptions(){
 		ArrayList<String> subSources=myClient.getSubscriptionList();
-		avModel.removeAllElements();
+		subModel.removeAllElements();
 		for (int i=0;i<subSources.size();i++) {
-			avModel.add(i, subSources.get(i));
+			subModel.add(i, subSources.get(i));
 		}
 	}
 	
@@ -333,7 +339,8 @@ public class ApplicationWindow extends JFrame implements ActionListener {
 			path = fc.getSelectedFile().toString();		
 		}
 		if(path!=null){
-			myServer.addSource(path);
+			File file = new File(path);
+			myServer.addSource(file);
 			populateVisibleSources();
 		}
 	}
@@ -344,5 +351,13 @@ public class ApplicationWindow extends JFrame implements ActionListener {
 			myServer.removeSource(sourceModel.get(selected).toString());
 			sourceModel.remove(selected);
 		}	
+	}
+	
+	public void postNotification(String message){
+		inboxTextArea.append("NOTIFICATION : "+message+"\n"); 
+	}
+	
+	public void postMessage(String message){
+		inboxTextArea.append(message+"\n");
 	}
 }

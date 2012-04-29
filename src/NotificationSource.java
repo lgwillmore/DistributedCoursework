@@ -10,11 +10,13 @@ import java.util.HashMap;
 public class NotificationSource extends UnicastRemoteObject implements
 		NotificationSourceRemoteInterface {
 	private FileMonitor myFM;
+	private String path;
 	private String Registry_Name;
 	private HashMap<String,NotificationSinkRemoteInterface> subscribers;
 
-	protected NotificationSource(String path) throws RemoteException {
-		this.Registry_Name = path;
+	protected NotificationSource(String path, String remoteName) throws RemoteException {
+		this.Registry_Name = remoteName;
+		this.path=path;
 		subscribers = new HashMap<String,NotificationSinkRemoteInterface>();
 		try {
 			myFM = new FileMonitor(path);
@@ -24,7 +26,14 @@ public class NotificationSource extends UnicastRemoteObject implements
 	}
 
 	public void notifyRemoval() {
-		// TODO Auto-generated method stub
+		for (String sink : subscribers.keySet()) {
+			try {
+				System.out.println("notifying of cancellation");
+				subscribers.get(sink).notifySourceCancelled(Registry_Name); 
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void doChecks() {

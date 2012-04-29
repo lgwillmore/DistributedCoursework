@@ -100,7 +100,7 @@ public class NotificationSink extends UnicastRemoteObject implements Notificatio
 	@Override
 	public void passNotification(Notification messanger) throws RemoteException {
 		for (String message : messanger.getMessage()) {
-			System.out.println(message);
+			view.postNotification(message);
 		}
 	}
 
@@ -110,6 +110,16 @@ public class NotificationSink extends UnicastRemoteObject implements Notificatio
 			result.add(string);
 		}
 		return result;
+	}
+
+	@Override
+	public void notifySourceCancelled(String registryName)
+			throws RemoteException {
+		if(subscriptions.containsKey(registryName)){
+			subscriptions.remove(registryName);
+			view.populateSubscriptions();
+			view.postMessage("SOURCE CANCELLED BY HOST: "+registryName+"\n(Reccommend Connection Refresh)");
+		}
 	}
 
 }

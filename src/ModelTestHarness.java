@@ -51,7 +51,8 @@ public class ModelTestHarness {
 		SinkClient.connectToHost(address);
 		
 		//add a source to the source manager
-		mySourceM.addSource("Test");	
+		File file= new File("Test");
+		mySourceM.addSource(file);	
 		
 		String remoteSourcePath = SinkClient.getAvailableSourceList().get(0);
 		

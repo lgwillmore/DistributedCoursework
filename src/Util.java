@@ -44,5 +44,12 @@ public class Util {
 	public static String getRemoteNameOf(String name) {
 		return RMI_PRE + getlocalIP() + "/" + name;
 	}
+	
+	public static String windowsPathToURL(String winPath){
+		String r1=winPath.trim().toLowerCase();
+		String[] r2 =r1.split(":");
+		String r3=r2[1].replace('\\', '/');
+		return r3;		
+	}
 
 }

@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -25,12 +27,21 @@ public class SourceManager extends UnicastRemoteObject implements SourceManagerR
 	}
 	
 	
-	public void addSource(String path){
+	public void addSource(File file){
+		String path=null;
+		try {
+			path = file.getCanonicalPath();
+		} catch (IOException e1) {			
+			e1.printStackTrace();
+		}
+		String url = Util.windowsPathToURL(path);
+		System.out.println(url);
 		if(!activeSources.containsKey(path)){
+			System.out.println(path);
 			try {
-				NotificationSource ns = new NotificationSource(path);
-				Naming.rebind(path, ns);
-				activeSources.put(path, ns);
+				NotificationSource ns = new NotificationSource(path,Util.getRemoteNameOf(url));
+				Naming.rebind(Util.getRemoteNameOf(url), ns);
+				activeSources.put(url, ns);
 				System.out.println("Source manager added Source to:"+path);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -42,7 +53,7 @@ public class SourceManager extends UnicastRemoteObject implements SourceManagerR
 	}
 	
 	public void removeSource(String path){
-		if(!activeSources.containsKey(path)){
+		if(activeSources.containsKey(path)){
 			activeSources.get(path).notifyRemoval();
 			activeSources.remove(path);
 		}
